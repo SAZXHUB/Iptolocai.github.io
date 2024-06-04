@@ -202,6 +202,42 @@
 
         // Set default language
         changeLanguage();
+        
+        let allLogs = [];
+
+async function getLocation() {
+    const ip = document.getElementById('ipAddress').value;
+    const lang = document.getElementById('language').value;
+    try {
+        const response = await fetch(`https://ipapi.co/${ip}/json/`);
+        const data = await response.json();
+
+        if (data.error) {
+            throw new Error(data.reason);
+        }
+
+        const logMessage = {
+            timestamp: new Date().toLocaleString(),
+            ipAddress: ip,
+            language: lang,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            city: data.city,
+            country: data.country_name
+        };
+
+        allLogs.push(logMessage);
+
+        if (data.latitude && data.longitude) {
+            const latStr = convertToDegreesMinutes(data.latitude, data.longitude);
+            document.getElementById('result').innerText = `${translations[lang].location} ${latStr}, ${translations[lang].city} ${data.city}, ${translations[lang].country} ${data.country_name}`;
+        } else {
+            document.getElementById('result').innerText = translations[lang].notFound;
+        }
+    } catch (error) {
+        document.getElementById('result').innerText = `${translations[lang].error} ${error.message}`;
+    }
+}
     </script>
 </body>
 </html>
